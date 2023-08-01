@@ -15,9 +15,6 @@ export function createSaasAuth(scope: Construct, props: CreateSaasAuth) {
 	const userPool = new awsCognito.UserPool(scope, `${props.appName}-userpool`, {
 		userPoolName: `${props.appName}-userpool`,
 		selfSignUpEnabled: true,
-		lambdaTriggers: {
-			postConfirmation: props.addUserPostConfirmation,
-		},
 		accountRecovery: awsCognito.AccountRecovery.PHONE_AND_EMAIL,
 		userVerification: {
 			emailStyle: awsCognito.VerificationEmailStyle.CODE,

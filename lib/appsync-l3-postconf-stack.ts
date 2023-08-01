@@ -2,14 +2,14 @@ import { createAddUserFunc } from './addUserPostConfirmation/construct'
 import * as cdk from 'aws-cdk-lib'
 import { createSaasAuth } from './auth/cognito'
 import { createAmplifyGraphqlApi } from './api/appsync'
-import { UserPoolOperation } from 'aws-cdk-lib/aws-cognito'
+import { CfnUserPool } from 'aws-cdk-lib/aws-cognito'
 
 export class MicroSaaSStack extends cdk.Stack {
 	constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
 		super(scope, id, props)
 
 		const context = {
-			appName: 'micro-saas-test',
+			appName: 'micro-saas-test2',
 		}
 
 		const cognito = createSaasAuth(this, {
@@ -32,9 +32,13 @@ export class MicroSaaSStack extends cdk.Stack {
 			},
 		})
 
-		cognito.userPool.addTrigger(
-			UserPoolOperation.POST_CONFIRMATION,
-			addUserFunc
-		)
+		new cdk.CfnOutput(this, 'addUserFuncArn', {
+			value: addUserFunc.functionArn,
+		})
+
+		const l1Pool = cognito.userPool.node.defaultChild as CfnUserPool
+		l1Pool.lambdaConfig = {
+			postConfirmation: `arn:aws:lambda:${this.region}:${this.account}:function:${context.appName}-addUserFunc`,
+		}
 	}
 }
